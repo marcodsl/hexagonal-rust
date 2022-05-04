@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use serde::Deserialize;
 
@@ -8,7 +8,7 @@ use crate::{
 };
 
 pub struct CreateNewBookUseCase {
-    repository: Arc<Mutex<dyn BookRepository>>,
+    repository: Arc<dyn BookRepository>,
 }
 
 #[derive(Deserialize)]
@@ -24,17 +24,15 @@ pub enum CreateNewBookUseCaseError {
 }
 
 impl CreateNewBookUseCase {
-    pub fn new(repository: Arc<Mutex<dyn BookRepository>>) -> Self {
+    pub fn new(repository: Arc<dyn BookRepository>) -> Self {
         Self { repository }
     }
 
     pub fn execute(&self, req: CreateNewUserRequest) -> Result<Book, CreateNewBookUseCaseError> {
-        let repository = match self.repository.lock() {
-            Ok(repository) => repository,
-            _ => return Err(CreateNewBookUseCaseError::Unknown),
-        };
-
-        match repository.create(Book::new(req.name, req.author, req.page_count)) {
+        match self
+            .repository
+            .create(Book::new(req.name, req.author, req.page_count))
+        {
             Ok(book) => Ok(book),
             Err(error) => Err(error.into()),
         }

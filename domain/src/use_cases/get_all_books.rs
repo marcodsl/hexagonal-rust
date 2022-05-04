@@ -1,9 +1,9 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use crate::{entities::Book, repositories::BookRepository};
 
 pub struct GetAllBooksUseCase {
-    repository: Arc<Mutex<dyn BookRepository>>,
+    repository: Arc<dyn BookRepository>,
 }
 
 pub enum GetAllBooksUseCaseError {
@@ -11,17 +11,12 @@ pub enum GetAllBooksUseCaseError {
 }
 
 impl GetAllBooksUseCase {
-    pub fn new(repository: Arc<Mutex<dyn BookRepository>>) -> Self {
+    pub fn new(repository: Arc<dyn BookRepository>) -> Self {
         Self { repository }
     }
 
     pub fn execute(&self) -> Result<Vec<Book>, GetAllBooksUseCaseError> {
-        let repository = match self.repository.lock() {
-            Ok(repository) => repository,
-            _ => return Err(GetAllBooksUseCaseError::Unknown),
-        };
-
-        repository
+        self.repository
             .read_all()
             .map_err(|_| GetAllBooksUseCaseError::Unknown)
     }

@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use actix_web::{web::Data, App, HttpServer};
 use domain::use_cases::{CreateNewBookUseCase, GetAllBooksUseCase};
@@ -8,7 +8,7 @@ mod routes;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let repository = Arc::new(Mutex::new(InMemoryBookRepository::new()));
+    let repository = Arc::new(InMemoryBookRepository::new());
 
     let create_new_book_use_case = Arc::new(CreateNewBookUseCase::new(repository.clone()));
     let get_all_books_use_case = Arc::new(GetAllBooksUseCase::new(repository.clone()));
